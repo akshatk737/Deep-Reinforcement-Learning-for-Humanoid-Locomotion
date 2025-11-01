@@ -1,0 +1,331 @@
+<?xml version="1.0"?>
+<robot name="simple_humanoid">
+
+    <link name="torso">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="10.0"/>
+        <inertia ixx="0.152083" ixy="0" ixz="0" iyy="0.185417" iyz="0" izz="0.070833"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.25 0.15 0.4"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <box size="0.25 0.15 0.4"/>
+        </geometry>
+      </collision>
+    </link>
+    
+
+    <link name="head">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="3.0"/>
+        <inertia ixx="0.011100" ixy="0" ixz="0" iyy="0.011100" iyz="0" izz="0.015000"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0.060" rpy="0 0 0" />
+        <geometry>
+          <cylinder length="0.12" radius="0.1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.060" rpy="0 0 0" />
+        <geometry>
+          <cylinder length="0.12" radius="0.1"/>
+        </geometry>
+      </collision>
+    </link>
+    
+
+    <joint name="neck_yaw" type="revolute">
+      <parent link="torso"/>
+      <child link="head"/>
+      <origin xyz="0 0 0.25" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit effort="10.0" velocity="1.5" lower="-1.57" upper="1.57"/>
+    </joint>
+    <transmission type="simple_transmission">
+      <actuator name="neck_yaw_motor"/>
+      <joint name="neck_yaw"/>
+      <mechanicalReduction>1</mechanicalReduction>
+    </transmission>
+    
+
+        <link name="left_upper_arm">
+          <inertial>
+            <origin xyz="0 0 0.140000" rpy="0 0 0"/>
+            <mass value="1.5"/>
+            <inertia ixx="0.010738" ixy="0" ixz="0" iyy="0.010738" iyz="0" izz="0.001875"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.140000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.28" radius="0.05"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.140000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.28" radius="0.05"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="left_shoulder_pitch" type="revolute">
+          <parent link="torso"/>
+          <child link="left_upper_arm"/>
+          <origin xyz="0.15 0.18 0.15" rpy="0 0 0"/>
+          <axis xyz="0 1 0"/>
+          <limit effort="50.0" velocity="4.0" lower="-2.0" upper="1.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="left_shoulder_pitch_motor"/>
+          <joint name="left_shoulder_pitch"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="left_lower_arm">
+          <inertial>
+            <origin xyz="0 0 0.125000" rpy="0 0 0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.005715" ixy="0" ixz="0" iyy="0.005715" iyz="0" izz="0.001012"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.125000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.25" radius="0.045"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.125000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.25" radius="0.045"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="left_elbow" type="revolute">
+          <parent link="left_upper_arm"/>
+          <child link="left_lower_arm"/>
+          <origin xyz="0 0 0.28" rpy="0 0 0"/>
+          <axis xyz="0 1 0"/>
+          <limit effort="30.0" velocity="4.0" lower="-2.0" upper="0.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="left_elbow_motor"/>
+          <joint name="left_elbow"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="right_upper_arm">
+          <inertial>
+            <origin xyz="0 0 0.140000" rpy="0 0 0"/>
+            <mass value="1.5"/>
+            <inertia ixx="0.010738" ixy="0" ixz="0" iyy="0.010738" iyz="0" izz="0.001875"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.140000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.28" radius="0.05"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.140000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.28" radius="0.05"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="right_shoulder_pitch" type="revolute">
+          <parent link="torso"/>
+          <child link="right_upper_arm"/>
+          <origin xyz="0.15 -0.18 0.15" rpy="0 0 0"/>
+          <axis xyz="0 1 0"/>
+          <limit effort="50.0" velocity="4.0" lower="-2.0" upper="1.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="right_shoulder_pitch_motor"/>
+          <joint name="right_shoulder_pitch"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="right_lower_arm">
+          <inertial>
+            <origin xyz="0 0 0.125000" rpy="0 0 0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.005715" ixy="0" ixz="0" iyy="0.005715" iyz="0" izz="0.001012"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.125000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.25" radius="0.045"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.125000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.25" radius="0.045"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="right_elbow" type="revolute">
+          <parent link="right_upper_arm"/>
+          <child link="right_lower_arm"/>
+          <origin xyz="0 0 0.28" rpy="0 0 0"/>
+          <axis xyz="0 1 0"/>
+          <limit effort="30.0" velocity="4.0" lower="-2.0" upper="0.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="right_elbow_motor"/>
+          <joint name="right_elbow"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="left_upper_leg">
+          <inertial>
+            <origin xyz="0 0 0.200000" rpy="0 0 0"/>
+            <mass value="3.0"/>
+            <inertia ixx="0.042700" ixy="0" ixz="0" iyy="0.042700" iyz="0" izz="0.005400"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="left_hip" type="revolute">
+          <parent link="torso"/>
+          <child link="left_upper_leg"/>
+          <origin xyz="0.0 0.08 -0.2" rpy="0 0 0"/>
+          <axis xyz="1 0 0"/>
+          <limit effort="100.0" velocity="4.0" lower="-1.57" upper="1.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="left_hip_motor"/>
+          <joint name="left_hip"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="left_lower_leg">
+          <inertial>
+            <origin xyz="0 0 0.200000" rpy="0 0 0"/>
+            <mass value="2.5"/>
+            <inertia ixx="0.035583" ixy="0" ixz="0" iyy="0.035583" iyz="0" izz="0.004500"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="left_knee" type="revolute">
+          <parent link="left_upper_leg"/>
+          <child link="left_lower_leg"/>
+          <origin xyz="0 0 0.4" rpy="0 0 0"/>
+          <axis xyz="1 0 0"/>
+          <limit effort="80.0" velocity="4.0" lower="0.0" upper="2.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="left_knee_motor"/>
+          <joint name="left_knee"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="right_upper_leg">
+          <inertial>
+            <origin xyz="0 0 0.200000" rpy="0 0 0"/>
+            <mass value="3.0"/>
+            <inertia ixx="0.042700" ixy="0" ixz="0" iyy="0.042700" iyz="0" izz="0.005400"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="right_hip" type="revolute">
+          <parent link="torso"/>
+          <child link="right_upper_leg"/>
+          <origin xyz="0.0 -0.08 -0.2" rpy="0 0 0"/>
+          <axis xyz="1 0 0"/>
+          <limit effort="100.0" velocity="4.0" lower="-1.57" upper="1.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="right_hip_motor"/>
+          <joint name="right_hip"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+
+        <link name="right_lower_leg">
+          <inertial>
+            <origin xyz="0 0 0.200000" rpy="0 0 0"/>
+            <mass value="2.5"/>
+            <inertia ixx="0.035583" ixy="0" ixz="0" iyy="0.035583" iyz="0" izz="0.004500"/>
+          </inertial>
+          <visual>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </visual>
+          <collision>
+            <origin xyz="0 0 0.200000" rpy="0 0 0" />
+            <geometry>
+              <cylinder length="0.4" radius="0.06"/>
+            </geometry>
+          </collision>
+        </link>
+        
+        <joint name="right_knee" type="revolute">
+          <parent link="right_upper_leg"/>
+          <child link="right_lower_leg"/>
+          <origin xyz="0 0 0.4" rpy="0 0 0"/>
+          <axis xyz="1 0 0"/>
+          <limit effort="80.0" velocity="4.0" lower="0.0" upper="2.0"/>
+        </joint>
+        <transmission type="simple_transmission">
+          <actuator name="right_knee_motor"/>
+          <joint name="right_knee"/>
+          <mechanicalReduction>1</mechanicalReduction>
+        </transmission>
+        
+</robot>
