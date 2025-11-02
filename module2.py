@@ -1,5 +1,5 @@
-import gymnasium as gym
-from gymnasium import spaces
+import  gym
+from gym import spaces
 import pybullet as p
 import pybullet_data
 import numpy as np
@@ -61,10 +61,9 @@ class HumanoidWalkEnv(gym.Env):
 
         self.num_joints = p.getNumJoints(self.humanoid)
 
-        if initial_pose is not None:
+        if initial_pose is not None and len(initial_pose) == self.num_joints:
             for i, angle in enumerate(initial_pose):
-                if i < self.num_joints:
-                    p.resetJointState(self.humanoid, i, angle)
+                p.resetJointState(self.humanoid, i, angle)
 
         obs = self._get_obs()
         return obs, {}
@@ -99,25 +98,3 @@ class HumanoidWalkEnv(gym.Env):
         if self.physics_client is not None:
             p.disconnect(self.physics_client)
             self.physics_client = None
-
-
-# ==============================
-# Simulation Script
-# ==============================
-
-env = HumanoidWalkEnv(render=True)   # set render=True for GUI
-obs, _ = env.reset()
-
-print("Initial obs shape:", obs.shape)
-print("Number of joints:", env.num_joints)
-
-for t in range(1000):   # Run for 500 simulation steps
-    action = env.action_space.sample()   # random action
-    obs, reward, done, _, info = env.step(action)
-    print(f"Step {t:03d} | Reward={reward:.3f} | fwd_vel={info['forward_vel']:.3f}")
-    time.sleep(1/240.0)   # real-time visualization speed
-    if done:
-        print("Humanoid fell down, resetting...")
-        obs, _ = env.reset()
-
-env.close()

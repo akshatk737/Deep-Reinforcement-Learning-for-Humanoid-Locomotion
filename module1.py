@@ -32,12 +32,11 @@ else:
 
     print(f"\nTotal images loaded: {len(image_arrays)}")
 
-
 # Initialize Mediapipe Pose
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True, model_complexity=2, enable_segmentation=False, min_detection_confidence=0.5)
 
-# Mapping and connections
+# Mapping and connections 
 BODY_25_MAPPING = [
     0, 12, 12, 14, 16, 11, 13, 15,
     24, 24, 26, 28, 23, 25, 27,
@@ -82,8 +81,61 @@ def select_main_skeleton(skeletons):
             max_area, selected_skeleton = area, skeleton
     return selected_skeleton
 
+# New: Kinematic conversion to joint angles (simplified mapping to 9 humanoid joints)
+def skeleton_to_joint_angles(skeleton):
+    # Keypoint indices (OpenPose BODY_25): 0=Nose, 1=Neck, 8=RHip, 11=LHip, 9=RKnee, 12=LKnee, 10=RAnkle, 13=LAnkle, 2=RShoulder, 5=LShoulder, 3=RElbow, 6=LElbow, etc.
+    # Humanoid joints: [neck_yaw, left_shoulder_pitch, left_elbow, right_shoulder_pitch, right_elbow, left_hip, left_knee, right_hip, right_knee]
+    angles = np.zeros(9, dtype=np.float32)
+    
+    # Neck yaw (from nose to neck, but simplified as angle between head and torso)
+    if skeleton[0, 2] > 0 and skeleton[1, 2] > 0:
+        v_neck = skeleton[1, :2] - skeleton[0, :2]  # Neck to nose vector
+        angles[0] = np.arctan2(v_neck[1], v_neck[0])  # Yaw approximation
+    
+    # Left shoulder pitch (angle at shoulder)
+    if skeleton[5, 2] > 0 and skeleton[6, 2] > 0:
+        v_shoulder_elbow = skeleton[6, :2] - skeleton[5, :2]
+        angles[1] = np.arctan2(v_shoulder_elbow[1], v_shoulder_elbow[0])
+    
+    # Left elbow (angle at elbow)
+    if skeleton[6, 2] > 0 and skeleton[7, 2] > 0:
+        v_elbow_wrist = skeleton[7, :2] - skeleton[6, :2]
+        angles[2] = np.arctan2(v_elbow_wrist[1], v_elbow_wrist[0])
+    
+    # Right shoulder pitch (mirror)
+    if skeleton[2, 2] > 0 and skeleton[3, 2] > 0:
+        v_shoulder_elbow = skeleton[3, :2] - skeleton[2, :2]
+        angles[3] = np.arctan2(v_shoulder_elbow[1], v_shoulder_elbow[0])
+    
+    # Right elbow
+    if skeleton[3, 2] > 0 and skeleton[4, 2] > 0:
+        v_elbow_wrist = skeleton[4, :2] - skeleton[3, :2]
+        angles[4] = np.arctan2(v_elbow_wrist[1], v_elbow_wrist[0])
+    
+    # Left hip (angle at hip)
+    if skeleton[11, 2] > 0 and skeleton[12, 2] > 0:
+        v_hip_knee = skeleton[12, :2] - skeleton[11, :2]
+        angles[5] = np.arctan2(v_hip_knee[1], v_hip_knee[0])
+    
+    # Left knee
+    if skeleton[12, 2] > 0 and skeleton[13, 2] > 0:
+        v_knee_ankle = skeleton[13, :2] - skeleton[12, :2]
+        angles[6] = np.arctan2(v_knee_ankle[1], v_knee_ankle[0])
+    
+    # Right hip
+    if skeleton[8, 2] > 0 and skeleton[9, 2] > 0:
+        v_hip_knee = skeleton[9, :2] - skeleton[8, :2]
+        angles[7] = np.arctan2(v_hip_knee[1], v_hip_knee[0])
+    
+    # Right knee
+    if skeleton[9, 2] > 0 and skeleton[10, 2] > 0:
+        v_knee_ankle = skeleton[10, :2] - skeleton[9, :2]
+        angles[8] = np.arctan2(v_knee_ankle[1], v_knee_ankle[0])
+    
+    return angles
 
-# Process each image
+# Process each image and collect theta_init (joint angles)
+all_theta_init = {}
 for image_path in image_files:
     image = cv2.imread(str(image_path))
     if image is None:
@@ -105,13 +157,13 @@ for image_path in image_files:
         print(f"No skeleton detected in {image_path.name}")
         continue
 
-    # Compute and print θ_init
-    theta_init = main_skeleton.flatten()
+    # Compute joint angles
+    theta_init = skeleton_to_joint_angles(main_skeleton)
+    all_theta_init[image_path.stem] = theta_init
     print(f"\nOutput: Initial Pose Vector (theta_init) for {image_path.name}")
     print(theta_init)
 
-
-    # Visualize skeleton
+    # Visualize skeleton (unchanged)
     vis_img = image.copy()
     for i, (x, y, conf) in enumerate(main_skeleton):
         if conf > 0:
@@ -128,3 +180,8 @@ for image_path in image_files:
     cv2.imshow("Skeleton", vis_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+# Export all_theta_init for Module 2
+print("\nAll theta_init (joint angles) collected:")
+for name, angles in all_theta_init.items():
+    print(f"{name}: {angles}")
