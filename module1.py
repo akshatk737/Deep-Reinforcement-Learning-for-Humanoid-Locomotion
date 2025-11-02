@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
 from pathlib import Path
-import cv2
-import numpy as np
-from pathlib import Path
 import mediapipe as mp
 
 def load_and_preprocess_image(image_path, target_size=(256, 256)):
@@ -15,6 +12,7 @@ def load_and_preprocess_image(image_path, target_size=(256, 256)):
     image_normalized = image_resized / 255.0
     return np.asarray(image_normalized, dtype=np.float32)
 
+# Load images
 images_dir = Path(r"./images")
 image_files = list(images_dir.glob("*.jpg")) + list(images_dir.glob("*.jpeg")) + list(images_dir.glob("*.png"))
 
@@ -35,10 +33,11 @@ else:
     print(f"\nTotal images loaded: {len(image_arrays)}")
 
 
-
+# Initialize Mediapipe Pose
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose(static_image_mode=True, model_complexity=2, enable_segmentation=False, min_detection_confidence=0.5)
 
+# Mapping and connections
 BODY_25_MAPPING = [
     0, 12, 12, 14, 16, 11, 13, 15,
     24, 24, 26, 28, 23, 25, 27,
@@ -83,9 +82,8 @@ def select_main_skeleton(skeletons):
             max_area, selected_skeleton = area, skeleton
     return selected_skeleton
 
-images_dir = Path(r"./images")
-image_files = list(images_dir.glob("*.jpg")) + list(images_dir.glob("*.jpeg")) + list(images_dir.glob("*.png"))
 
+# Process each image
 for image_path in image_files:
     image = cv2.imread(str(image_path))
     if image is None:
@@ -107,6 +105,13 @@ for image_path in image_files:
         print(f"No skeleton detected in {image_path.name}")
         continue
 
+    # Compute and print θ_init
+    theta_init = main_skeleton.flatten()
+    print(f"\nOutput: Initial Pose Vector (theta_init) for {image_path.name}")
+    print(theta_init)
+
+
+    # Visualize skeleton
     vis_img = image.copy()
     for i, (x, y, conf) in enumerate(main_skeleton):
         if conf > 0:
@@ -119,9 +124,7 @@ for image_path in image_files:
             x2, y2 = int(main_skeleton[j, 0]), int(main_skeleton[j, 1])
             cv2.line(vis_img, (x1, y1), (x2, y2), (255, 0, 0), 2)
 
-    print(f"Displaying skeleton for: {image_path.name}")
+    print(f"\nDisplaying skeleton for: {image_path.name}")
     cv2.imshow("Skeleton", vis_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-
